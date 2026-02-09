@@ -1,5 +1,5 @@
 // Import necessary hooks and functions from React.
-import { useContext, useReducer, createContext } from "react";
+import { useContext, useReducer, createContext, useState } from "react";
 import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
 
 // Create a context to hold the global state of the application
@@ -10,6 +10,7 @@ const StoreContext = createContext()
 // broadcast the information throught all the app pages and components.
 export function StoreProvider({ children }) {
     // Initialize reducer with the initial state.
+    const [state, setState] = useState(null);
     const [store, dispatch] = useReducer(storeReducer, initialStore())
     // Provide the store and dispatch method to all child components.
     return <StoreContext.Provider value={{ store, dispatch }}>
