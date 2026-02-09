@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean, select
 from sqlalchemy.orm import Mapped, mapped_column
+from flask_bcrypt import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -21,7 +22,7 @@ class User(db.Model):
 
     def register(self, email, password):
         self.email = email
-        self.password = password
+        self.password = generate_password_hash(password).decode('utf-8')
         self.is_active = True
 
         db.session.add(self)
@@ -29,10 +30,22 @@ class User(db.Model):
 
         return self.serialize()
 
+    def update_password(self, email, password, new_password):
+        find_user = db.session.execute(select(User).where(
+            User.email == email)).scalar_one_or_none()
+
+        if find_user is not None and check_password_hash(find_user.password, password):
+            hash_new_password = generate_password_hash(
+                new_password).decode('utf-8')
+            find_user.password = hash_new_password
+            db.session.commit()
+            return True
+        return False
+
     def search_user(self, email, password):
         find_user = db.session.execute(select(User).where(
-            User.email == email, User.password == password)).scalar_one_or_none()
+            User.email == email)).scalar_one_or_none()
 
-        if find_user is None:
+        if find_user is None or not check_password_hash(find_user.password, password):
             return None
         return find_user.serialize()
