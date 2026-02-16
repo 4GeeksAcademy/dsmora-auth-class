@@ -33,13 +33,17 @@ export const Home = () => {
 	}, [])
 
 	return (
-		<div className="text-center mt-5">
-			<h1 className="display-4">Hello {store.user.name}!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				<span>{store.message}</span>
+		<div className="wrapper-primary">
+			<div className="wrapper-title">
+				<h1 className="display-4">Hello {store.user.name}!!</h1>
+				<p className="lead">
+					<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
+				</p>
+			</div>
+			<div className="wrapper-body">
+				<div className="alert alert-info">
+					<span>{store.message}</span>
+				</div>
 			</div>
 		</div>
 	);

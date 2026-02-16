@@ -1,0 +1,30 @@
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", sans-serif;
+}
+
+/* FEATURE: Wrapper Styles */
+.wrapper-primary {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #e8f4f8;
+}
+
+.wrapper-title {
+  background: linear-gradient(to right, #ff6b6b, #feca57);
+  color: #333;
+  padding: 50px;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.wrapper-body {
+  margin-top: 40px;
+  padding: 30px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+}
