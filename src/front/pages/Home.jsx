@@ -40,7 +40,7 @@ export const Home = () => {
 					<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
 				</p>
 			</div>
-			<div className="wrapper-body">
+			<div className="container-content">
 				<div className="alert alert-info">
 					<span>{store.message}</span>
 				</div>
