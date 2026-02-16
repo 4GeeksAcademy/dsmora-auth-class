@@ -2,8 +2,6 @@
 
 Build web applications using React.js for the front end and python/flask for your backend API.
 
-## Branch: DEVELOP - Main development line for all features
-
 - Documentation can be found here: https://4geeks.com/docs/start/react-flask-template
 - Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
 - Integrated with Pipenv for package managing.
