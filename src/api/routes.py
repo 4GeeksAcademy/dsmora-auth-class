@@ -31,6 +31,13 @@ def register():
     email = request.get_json()['email']
     password = request.get_json()['password']
 
+    user = User()
+
+    find_user = user.search_user_by_email(email)
+
+    if find_user is not None:
+        return jsonify({'msg': 'user already exists'}), 400
+
     if email is None or password is None:
         return jsonify({'msg': 'bad request'}), 400
 

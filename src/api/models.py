@@ -49,3 +49,11 @@ class User(db.Model):
         if find_user is None or not check_password_hash(find_user.password, password):
             return None
         return find_user.serialize()
+
+    def search_user_by_email(self, email):
+        find_user = db.session.execute(select(User).where(
+            User.email == email)).scalar_one_or_none()
+
+        if find_user is None:
+            return None
+        return find_user.serialize()
