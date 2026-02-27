@@ -1,7 +1,15 @@
+import enum
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, select
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, select, Enum as SAEnum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_bcrypt import generate_password_hash, check_password_hash
+
+
+class TodoStatus(enum.Enum):
+    PENDING = "PENDING"
+    ON_GOING = "ON_GOING"
+    COMPLETED = "COMPLETED"
+
 
 db = SQLAlchemy()
 
@@ -12,11 +20,16 @@ class User(db.Model):
         String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    image: Mapped[str] = mapped_column(String(500), nullable=True)
+
+    todos = relationship('Todo', back_populates='user',
+                         cascade='all, delete-orphan')
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
+            "image": self.image,
             # do not serialize the password, its a security breach
         }
 
@@ -49,3 +62,33 @@ class User(db.Model):
         if find_user is None or not check_password_hash(find_user.password, password):
             return None
         return find_user.serialize()
+
+    def search_user_by_email(self, email):
+        find_user = db.session.execute(select(User).where(
+            User.email == email)).scalar_one_or_none()
+
+        if find_user is None:
+            return None
+        return find_user.serialize()
+
+
+class Todo(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    status: Mapped[TodoStatus] = mapped_column(
+        SAEnum(TodoStatus, name="todostatus", create_type=True),
+        default=TodoStatus.PENDING, nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('user.id'), nullable=False)
+
+    user = relationship('User', back_populates='todos')
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "status": self.status.value,
+            "user_id": self.user_id
+        }
