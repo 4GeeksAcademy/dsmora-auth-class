@@ -1,7 +1,15 @@
+import enum
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, select
+from sqlalchemy import String, Boolean, Integer, ForeignKey, Text, select, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_bcrypt import generate_password_hash, check_password_hash
+
+
+class TodoStatus(enum.Enum):
+    PENDING = "PENDING"
+    ON_GOING = "ON_GOING"
+    COMPLETED = "COMPLETED"
+
 
 db = SQLAlchemy()
 
@@ -68,8 +76,9 @@ class Todo(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    is_completed: Mapped[bool] = mapped_column(
-        Boolean(), default=False, nullable=False)
+    status: Mapped[TodoStatus] = mapped_column(
+        SAEnum(TodoStatus, name="todostatus", create_type=True),
+        default=TodoStatus.PENDING, nullable=False)
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('user.id'), nullable=False)
 
@@ -80,6 +89,6 @@ class Todo(db.Model):
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "is_completed": self.is_completed,
+            "status": self.status.value,
             "user_id": self.user_id
         }

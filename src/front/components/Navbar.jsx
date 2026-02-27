@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { AuthModal } from "./RegisterForm.jsx";
-import { ProfileImageUploader } from "./ProfileImageUploader.jsx";
 
 export const Navbar = () => {
 	const { store, dispatch } = useGlobalReducer();
 	const { user } = store;
+	const navigate = useNavigate();
 
-	const [showProfileModal, setShowProfileModal] = useState(false);
 	const [showAuthModal, setShowAuthModal] = useState(false);
 	const [authType, setAuthType] = useState("login");
 
@@ -19,7 +18,6 @@ export const Navbar = () => {
 
 	const handleLogout = () => {
 		dispatch({ type: "logout" });
-		setShowProfileModal(false);
 	};
 
 	return (
@@ -33,23 +31,32 @@ export const Navbar = () => {
 
 					<div className="ms-auto d-flex align-items-center gap-2">
 						{user ? (
-							<button
-								className="btn btn-outline-light btn-sm d-flex align-items-center gap-2 rounded-pill px-3"
-								onClick={() => setShowProfileModal(true)}
-							>
-								{user.image ? (
-									<img
-										src={user.image}
-										alt="avatar"
-										className="rounded-circle"
-										style={{ width: 28, height: 28, objectFit: "cover" }}
-									/>
-								) : (
-									<i className="fas fa-user-circle"></i>
-								)}
-								<span className="d-none d-md-inline">{user.email}</span>
-								<i className="fas fa-chevron-down small"></i>
-							</button>
+							<>
+								<button
+									className="btn btn-outline-light btn-sm d-flex align-items-center gap-2 rounded-pill px-3"
+									onClick={() => navigate("/profile")}
+								>
+									{user.image ? (
+										<img
+											src={user.image}
+											alt="avatar"
+											className="rounded-circle"
+											style={{ width: 28, height: 28, objectFit: "cover" }}
+										/>
+									) : (
+										<i className="fas fa-user-circle"></i>
+									)}
+									<span className="d-none d-md-inline">{user.email}</span>
+								</button>
+								<button
+									className="btn btn-danger btn-sm rounded-pill px-3"
+									onClick={handleLogout}
+									title="Cerrar sesión"
+								>
+									<i className="fas fa-sign-out-alt"></i>
+									<span className="d-none d-md-inline ms-1">Salir</span>
+								</button>
+							</>
 						) : (
 							<>
 								<button
@@ -69,47 +76,6 @@ export const Navbar = () => {
 					</div>
 				</div>
 			</nav>
-
-			{/* Profile Modal */}
-			{showProfileModal && (
-				<div
-					className="modal show d-block"
-					tabIndex="-1"
-					style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1055 }}
-					onClick={(e) => e.target === e.currentTarget && setShowProfileModal(false)}
-				>
-					<div className="modal-dialog modal-dialog-centered">
-						<div className="modal-content">
-							<div className="modal-header">
-								<h5 className="modal-title">
-									<i className="fas fa-user-circle me-2"></i>Mi Perfil
-								</h5>
-								<button
-									type="button"
-									className="btn-close"
-									onClick={() => setShowProfileModal(false)}
-								></button>
-							</div>
-							<div className="modal-body text-center py-4">
-								<ProfileImageUploader />
-								<h5 className="mt-3 mb-1">{user?.email}</h5>
-								<p className="text-muted small">
-									<i className="fas fa-shield-alt me-1"></i>
-									Cuenta activa
-								</p>
-							</div>
-							<div className="modal-footer justify-content-center">
-								<button
-									className="btn btn-danger rounded-pill px-4"
-									onClick={handleLogout}
-								>
-									<i className="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
 
 			{/* Auth Modal */}
 			<AuthModal

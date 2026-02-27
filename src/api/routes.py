@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Todo
+from api.models import db, User, Todo, TodoStatus
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -79,6 +79,27 @@ def update_user_profile():
     return jsonify(user.serialize()), 200
 
 
+@api.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    current_user_id = get_jwt_identity()
+    body = request.get_json()
+
+    if 'password' not in body or 'new_password' not in body:
+        return jsonify({'code_error': 'BAD_REQUEST', 'message': 'Se requiere password y new_password'}), 400
+
+    found_user = User.query.get(current_user_id)
+    if found_user is None:
+        return jsonify({'code_error': 'NOT_FOUND'}), 404
+
+    result = found_user.update_password(
+        found_user.email, body['password'], body['new_password'])
+    if not result:
+        return jsonify({'code_error': 'AUTH_ERROR', 'message': 'Contraseña actual incorrecta'}), 401
+
+    return jsonify({'message': 'Contraseña actualizada exitosamente'}), 200
+
+
 # Todo endpoints
 @api.route('/todos', methods=['GET'])
 @jwt_required()
@@ -97,10 +118,16 @@ def create_todo():
     if 'title' not in body:
         return jsonify({'code_error': 'BAD_REQUEST', 'message': 'Title is required'}), 400
 
+    status_value = body.get('status', 'PENDING')
+    try:
+        status = TodoStatus[status_value]
+    except KeyError:
+        status = TodoStatus.PENDING
+
     new_todo = Todo(
         title=body['title'],
         description=body.get('description', ''),
-        is_completed=body.get('is_completed', False),
+        status=status,
         user_id=current_user_id
     )
 
@@ -137,8 +164,11 @@ def update_todo(todo_id):
         todo.title = body['title']
     if 'description' in body:
         todo.description = body['description']
-    if 'is_completed' in body:
-        todo.is_completed = body['is_completed']
+    if 'status' in body:
+        try:
+            todo.status = TodoStatus[body['status']]
+        except KeyError:
+            return jsonify({'code_error': 'BAD_REQUEST', 'message': 'Invalid status value'}), 400
 
     db.session.commit()
 

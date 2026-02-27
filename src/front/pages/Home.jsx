@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TodoList } from "../components/TodoList.jsx";
+import { TodoBoard } from "../components/TodoBoard.jsx";
 import { AuthModal } from "../components/RegisterForm.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,7 +21,7 @@ export const Home = () => {
 		<div className="home-wrapper">
 			{user ? (
 				<div className="todo-wrapper">
-					<TodoList />
+					<TodoBoard />
 				</div>
 			) : (
 				<div className="landing-wrapper">
